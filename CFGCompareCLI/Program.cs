@@ -12,12 +12,10 @@ namespace CFGCompareCLI
             ReadParamFromGzip readFromGzip = new ReadParamFromGzip();
             List<Parameter> source = new List<Parameter>();
             List<Parameter> target = new List<Parameter>();
-            string sourceFile = "";
-            string targetFile = "";
-            string configPath = Environment.CurrentDirectory;
             bool showMenu = true;
 
             //Reading existing .cfg files from project default I/O path (CFGCompareCLI\bin\Debug\net5.0)
+            string configPath = Environment.CurrentDirectory;
             string[] fileEntries = Directory.GetFiles(configPath, "*.cfg");
 
             for (int i = 0; i < fileEntries.Length; i++)
@@ -27,52 +25,63 @@ namespace CFGCompareCLI
             }
 
             Console.WriteLine("Choose source file");
-            sourceFile = chooseFile(sourceFile, fileEntries);
+            string sourceFile = chooseFile(fileEntries);
             Console.WriteLine("Choose target file");
-            targetFile = chooseFile(targetFile, fileEntries);
-
+            string targetFile = chooseFile(fileEntries);
+            //Loading data from chosen Gzip files
             source = readFromGzip.LoadData(sourceFile);
             target = readFromGzip.LoadData(targetFile);
 
             ParameterComparison parameterComparison = new ParameterComparison(source, target);
 
-
-            Console.ReadLine();
             while (showMenu == true)
             {
                 Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Red;
+                PrintConfigurationCredentials(source);
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Comparison summary:");
+                parameterComparison.printSummary();
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Choose an option:");
                 Console.WriteLine("1) Perziureti parametru sarasa");
-                Console.WriteLine("2) Rezultatu suvestine");
-                Console.WriteLine("3) Filtruoti pagal id");
+                Console.WriteLine("2) Filtruoti pagal id");
+                Console.WriteLine("3) Filtruoti pagal palyginima");
                 Console.WriteLine("4) Exit");
                 Console.Write("\r\nSelect an option: ");
 
                 switch (Console.ReadLine())
                 {
                     case "1":
-                       
+                        parameterComparison.printParameters();
                         break;
                     case "2":
-                        
+                        parameterComparison.printParametersWithIdFilter();
                         break;
                     case "3":
-                        
+                        parameterComparison.printParametersWithComparisonFilter();
                         break;
                     case "4":
                         showMenu = false;
                         break;
                 }
             }
-
         }
 
-        private static string chooseFile(string file, string[] fileEntries)
+        private static void PrintConfigurationCredentials(List<Parameter> source)
         {
+            int index = source.FindIndex(x => int.TryParse(x.Id, out _) == true);
+            for (int i = 0; i < index; i++)
+                Console.WriteLine(source[i].Id + " " + source[i].Value);
+        }
+
+        private static string chooseFile(string[] fileEntries)
+        {
+            string file = "";
             while (file == "")
             {
                 int.TryParse(Console.ReadLine(), out int choice);
-                if (choice < fileEntries.Length && choice > 0)
+                if (choice < fileEntries.Length && choice >= 0)
                     file = fileEntries[choice];
                 else
                 {
