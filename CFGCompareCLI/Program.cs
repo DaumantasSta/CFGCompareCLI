@@ -19,7 +19,7 @@ namespace CFGCompareCLI
 
             //Reading existing .cfg files from project default I/O path (CFGCompareCLI\bin\Debug\net5.0)
             string[] fileEntries = Directory.GetFiles(configPath, "*.cfg");
-            
+
             for (int i = 0; i < fileEntries.Length; i++)
             {
                 string fileName = fileEntries[i].Substring(configPath.Length + 1);
@@ -33,7 +33,11 @@ namespace CFGCompareCLI
 
             source = readFromGzip.LoadData(sourceFile);
             target = readFromGzip.LoadData(targetFile);
-            
+
+            ParameterComparison parameterComparison = new ParameterComparison(source, target);
+
+
+            Console.ReadLine();
             while (showMenu == true)
             {
                 Console.Clear();
