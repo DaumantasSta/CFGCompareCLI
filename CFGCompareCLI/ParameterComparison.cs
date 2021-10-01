@@ -15,11 +15,11 @@ namespace CFGCompareCLI
 
         public ParameterComparison(List<Parameter> source, List<Parameter> target)
         {
-            int max = source.Count + target.Count;
+            int max = source.Count + target.Count; //Remove
             int index = 0;
             for (int i = 0; i < source.Count; i++)
             {
-                index = target.FindIndex(x => x.Id == source[i].Id);
+                index = target.FindIndex(x => x.Id == source[i].Id); //Find same id in target, if not returns -1
                 if (index > 0 && int.TryParse(source[i].Id, out _)) //If same id exist and it is numeric one
                 {
                     if (source[i].Value == target[index].Value)
@@ -33,10 +33,8 @@ namespace CFGCompareCLI
 
             for (int i = 0; i < target.Count; i++)
             {
-                //TODO
-                //Need to fix here
-                index = source.FindIndex(x => x.Id != target[i].Id);
-                if (index == -1 && int.TryParse(source[i].Id, out _)) //Source doesn't have target id, and checks if it's numeric
+                index = _paramComparison.FindIndex(x => x.Item1 == target[i].Id); //If param comparison dont have target id it returns -1
+                if(index==-1 && int.TryParse(target[i].Id, out _)) //Check if target id numeric
                     _paramComparison.Add(new Tuple<string, string, char>(target[i].Id, target[i].Value, 'A'));
             }
         }
