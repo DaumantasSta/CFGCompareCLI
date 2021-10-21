@@ -7,89 +7,115 @@ using System.Threading.Tasks;
 
 namespace CFGCompareCLI
 {
+    public enum ParameterState
+    {
+        Unchanged,
+        Modified,
+        Removed,
+        Added
+    }
+
+    public class ParameterComparisonEntry
+    {
+        public string Id { get; set; }
+        public string Value { get; set; }
+        public ParameterState State { get; set; }
+    }
+
     public class ParameterComparison
     {
-        private List<Tuple<string, string, char>> _paramComparison = new List<Tuple<string, string, char>>(); //ID, Value, UMRA
-
+        private List<ParameterComparisonEntry> _paramComparison = new List<ParameterComparisonEntry>();
+        
         public ParameterComparison(List<Parameter> source, List<Parameter> target)
         {
+            //Remove all alphabetic id's
+            source.RemoveAll(x => int.TryParse(x.Id, out _) == false);
+            target.RemoveAll(x => int.TryParse(x.Id, out _) == false);
+
             int index = 0;
             for (int i = 0; i < source.Count; i++)
             {
                 index = target.FindIndex(x => x.Id == source[i].Id); //Find same id in target, if not returns -1
-                if (index > 0 && int.TryParse(source[i].Id, out _)) //If same id exist and it is numeric one
+
+                if (index > 0) //If same Id is found
                 {
                     if (source[i].Value == target[index].Value)
-                        _paramComparison.Add(new Tuple<string, string, char>(source[i].Id, source[i].Value, 'U'));
+                        _paramComparison.Add(new ParameterComparisonEntry { Id = source[i].Id, Value = source[i].Value, State = ParameterState.Unchanged });
                     else
-                        _paramComparison.Add(new Tuple<string, string, char>(source[i].Id, source[i].Value, 'M'));
+                        _paramComparison.Add(new ParameterComparisonEntry { Id = source[i].Id, Value = source[i].Value, State = ParameterState.Modified });
                 }
-                else if (int.TryParse(source[i].Id, out _)) //Target doesn't have source id
-                    _paramComparison.Add(new Tuple<string, string, char>(source[i].Id, source[i].Value, 'R'));
+                else //Target doesn't have source's id
+                {
+                    _paramComparison.Add(new ParameterComparisonEntry { Id = source[i].Id, Value = source[i].Value, State = ParameterState.Removed });
+                }
             }
 
             for (int i = 0; i < target.Count; i++)
             {
-                index = _paramComparison.FindIndex(x => x.Item1 == target[i].Id); //If param comparison dont have target id it returns -1
-                if(index==-1 && int.TryParse(target[i].Id, out _)) //Check if target id numeric
-                    _paramComparison.Add(new Tuple<string, string, char>(target[i].Id, target[i].Value, 'A'));
+                index = _paramComparison.FindIndex(x => x.Id == target[i].Id); //If param comparison list dont have target id it returns -1
+                if (index == -1)
+                    _paramComparison.Add(new ParameterComparisonEntry { Id = target[i].Id, Value = target[i].Value, State = ParameterState.Added });
             }
         }
 
-        public void printParameters()
+        public void PrintParameters()
         {
-            printParameters(_paramComparison);
+            PrintParameters(_paramComparison);
         }
 
-        private static void printParameters(List<Tuple<string, string, char>> output)
+        private static void PrintParameters(List<ParameterComparisonEntry> output)
         {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            foreach (var item in output)
+            if (output.Count == 0)
             {
-                Console.ForegroundColor = GetConsoleColor(item.Item3);
-                Console.WriteLine("ID: " + item.Item1 + " Value: " + item.Item2 + " Comparasion: " + item.Item3);
+                Console.WriteLine("Records not found");
+            }
+            else
+            {
+                foreach (var item in output)
+                {
+                    Console.ForegroundColor = GetConsoleColor(item.State);
+                    Console.WriteLine("ID: " + item.Id + " Value: " + item.Value + " Comparasion: " + item.State);
+                }
             }
 
             Console.ForegroundColor = ConsoleColor.White;
-            if (output.Count == 0)
-                Console.WriteLine("Records not found");
             Console.ReadLine();
         }
-        public void printSummary()
+
+        public void PrintSummary()
         {
-            int unchangedValue = _paramComparison.FindAll(x => x.Item3 == 'U').Count;
-            int modifiedValue = _paramComparison.FindAll(x => x.Item3 == 'M').Count;
-            int removedValue = _paramComparison.FindAll(x => x.Item3 == 'R').Count;
-            int addedValue = _paramComparison.FindAll(x => x.Item3 == 'A').Count;
+            int unchangedValue = _paramComparison.FindAll(x => x.State == ParameterState.Unchanged).Count;
+            int modifiedValue = _paramComparison.FindAll(x => x.State == ParameterState.Modified).Count;
+            int removedValue = _paramComparison.FindAll(x => x.State == ParameterState.Removed).Count;
+            int addedValue = _paramComparison.FindAll(x => x.State == ParameterState.Added).Count;
             Console.WriteLine("Unchanged: " + unchangedValue + ", Modified: " + modifiedValue + ", Removed: " + removedValue + ", Added: " + addedValue);
         }
 
-        public void printParametersWithIdFilter()
+        public void PrintParametersWithIdFilter()
         {
             Console.WriteLine("Please type ID filter");
             string input = Console.ReadLine();
-            var output = _paramComparison.FindAll(x => x.Item1.StartsWith(input));
+            var output = _paramComparison.FindAll(x => x.Id.StartsWith(input));
 
-            printParameters(output);
+            PrintParameters(output);
         }
 
-        public void printParametersWithComparisonFilter()
+        public void PrintParametersWithComparisonFilter()
         {
-            char charInput;
-            Console.WriteLine("Please type one letter of an comparison filter (U - unchanged, M - modified, R - removed, A - added)");
+            Console.WriteLine("Please type one number of an comparison filter (0 - unchanged, 1 - modified, 2 - removed, 3 - added)");
             string input = Console.ReadLine();
-            Char.TryParse(input, out charInput);
-            var output = _paramComparison.FindAll(x => x.Item3 == charInput);
+            int.TryParse(input, out int intInput);
+            var output = _paramComparison.FindAll(x => x.State == (ParameterState)intInput);
 
-            printParameters(output);
+            PrintParameters(output);
         }
 
-        private static ConsoleColor GetConsoleColor(char state) => state switch
+        private static ConsoleColor GetConsoleColor(ParameterState state) => state switch
         {
-            'M' => ConsoleColor.Green,
-            'R' => ConsoleColor.Red,
-            'A' => ConsoleColor.Yellow,
-            'U' => ConsoleColor.Gray,
+            ParameterState.Unchanged => ConsoleColor.Gray,
+            ParameterState.Modified => ConsoleColor.Yellow,
+            ParameterState.Removed => ConsoleColor.Green,
+            ParameterState.Added => ConsoleColor.Red,
             _ => Console.ForegroundColor
         };
     }

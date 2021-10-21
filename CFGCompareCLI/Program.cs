@@ -23,21 +23,28 @@ namespace CFGCompareCLI
             List<Parameter> source = readFromGzip.LoadData(sourceFile);
             List<Parameter> target = readFromGzip.LoadData(targetFile);
 
+            //Extracting credentials
+            List<string> configurationCredentials = new List<string>();
+
+            int indexOfFirstNumericParameter = source.FindIndex(x => int.TryParse(x.Id, out _) == true);
+            for (int i = 0; i < indexOfFirstNumericParameter; i++)
+                configurationCredentials.Add(source[i].Id + " " + source[i].Value);
+
             ParameterComparison parameterComparison = new ParameterComparison(source, target);
 
             while (showMenu == true)
             {
                 Console.Clear();
                 Console.ForegroundColor = ConsoleColor.Red;
-                PrintConfigurationCredentials(source);
+                PrintConfigurationCredentials(configurationCredentials);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Comparison summary:");
-                parameterComparison.printSummary();
+                parameterComparison.PrintSummary();
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Choose an option:");
                 Console.WriteLine("1) View parameter list");
                 Console.WriteLine("2) View parameter list by id");
-                Console.WriteLine("3) View parameter list by comparisson");
+                Console.WriteLine("3) View parameter list by comparison");
                 Console.WriteLine("4) Exit");
                 Console.Write("\r\nSelect an option: ");
 
@@ -45,13 +52,13 @@ namespace CFGCompareCLI
                 switch (selection)
                 {
                     case "1":
-                        parameterComparison.printParameters();
+                        parameterComparison.PrintParameters();
                         break;
                     case "2":
-                        parameterComparison.printParametersWithIdFilter();
+                        parameterComparison.PrintParametersWithIdFilter();
                         break;
                     case "3":
-                        parameterComparison.printParametersWithComparisonFilter();
+                        parameterComparison.PrintParametersWithComparisonFilter();
                         break;
                     case "4":
                         showMenu = false;
@@ -59,12 +66,13 @@ namespace CFGCompareCLI
                 }
             }
         }
-        private static void PrintConfigurationCredentials(List<Parameter> source)
+
+        private static void PrintConfigurationCredentials(List<String> credentials)
         {
-            int indexOfFirstNumericParameter = source.FindIndex(x => int.TryParse(x.Id, out _) == true);
-            for (int i = 0; i < indexOfFirstNumericParameter; i++)
-                Console.WriteLine(source[i].Id + " " + source[i].Value);
+            foreach(string i in credentials)
+                Console.WriteLine(i);
         }
+
         private static string[] ReadingCfgFilesInDir()
         {
             string[] fileList = new string[] {};
@@ -79,7 +87,7 @@ namespace CFGCompareCLI
                     Console.WriteLine("Such directory doesn't exist");
 
                 if(fileList.Length==0)
-                    Console.WriteLine("No *.cfg files found in selecter dir \n");
+                    Console.WriteLine("No *.cfg files found in selected dir \n");
             }
 
             return fileList;
