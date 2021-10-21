@@ -10,12 +10,9 @@ namespace CFGCompareCLI
     public class ParameterComparison
     {
         private List<Tuple<string, string, char>> _paramComparison = new List<Tuple<string, string, char>>(); //ID, Value, UMRA
-        public ParameterComparison()
-        { }
 
         public ParameterComparison(List<Parameter> source, List<Parameter> target)
         {
-            int max = source.Count + target.Count; //Remove
             int index = 0;
             for (int i = 0; i < source.Count; i++)
             {
@@ -44,26 +41,27 @@ namespace CFGCompareCLI
             printParameters(_paramComparison);
         }
 
-        public void printSummary()
-        {
-            printSummary(_paramComparison);
-        }
-
         private static void printParameters(List<Tuple<string, string, char>> output)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
             foreach (var item in output)
             {
-                if (item.Item3 != 'U')
-                    changeConsoleColour(item);
+                Console.ForegroundColor = GetConsoleColor(item.Item3);
                 Console.WriteLine("ID: " + item.Item1 + " Value: " + item.Item2 + " Comparasion: " + item.Item3);
-                Console.ForegroundColor = ConsoleColor.Gray;
             }
 
             Console.ForegroundColor = ConsoleColor.White;
             if (output.Count == 0)
                 Console.WriteLine("Records not found");
             Console.ReadLine();
+        }
+        public void printSummary()
+        {
+            int unchangedValue = _paramComparison.FindAll(x => x.Item3 == 'U').Count;
+            int modifiedValue = _paramComparison.FindAll(x => x.Item3 == 'M').Count;
+            int removedValue = _paramComparison.FindAll(x => x.Item3 == 'R').Count;
+            int addedValue = _paramComparison.FindAll(x => x.Item3 == 'A').Count;
+            Console.WriteLine("Unchanged: " + unchangedValue + ", Modified: " + modifiedValue + ", Removed: " + removedValue + ", Added: " + addedValue);
         }
 
         public void printParametersWithIdFilter()
@@ -86,23 +84,13 @@ namespace CFGCompareCLI
             printParameters(output);
         }
 
-        private static void changeConsoleColour(Tuple<string, string, char> item)
+        private static ConsoleColor GetConsoleColor(char state) => state switch
         {
-            if (item.Item3 == 'M')
-                Console.ForegroundColor = ConsoleColor.Green;
-            else if (item.Item3 == 'R')
-                Console.ForegroundColor = ConsoleColor.Red;
-            else if (item.Item3 == 'A')
-                Console.ForegroundColor = ConsoleColor.Yellow;
-        }
-
-        private static void printSummary(List<Tuple<string, string, char>> paramComparison)
-        {
-            int unchangedValue = paramComparison.FindAll(x => x.Item3 == 'U').Count;
-            int modifiedValue = paramComparison.FindAll(x => x.Item3 == 'M').Count;
-            int removedValue = paramComparison.FindAll(x => x.Item3 == 'R').Count;
-            int addedValue = paramComparison.FindAll(x => x.Item3 == 'A').Count;
-            Console.WriteLine("Unchanged: " + unchangedValue + ", Modified: " + modifiedValue + ", Removed: " + removedValue + ", Added: " + addedValue);
-        }
+            'M' => ConsoleColor.Green,
+            'R' => ConsoleColor.Red,
+            'A' => ConsoleColor.Yellow,
+            'U' => ConsoleColor.Gray,
+            _ => Console.ForegroundColor
+        };
     }
 }
