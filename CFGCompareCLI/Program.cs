@@ -11,24 +11,19 @@ namespace CFGCompareCLI
         {
             bool showMenu = true;
 
+            //Reading chosen directory and giving choice for user to choose files
             string[] fileEntries = ReadingCfgFilesInDir();
-
             Console.WriteLine("Choose source file");
             string sourceFile = ChooseFile(fileEntries);
             Console.WriteLine("\n Choose target file");
             string targetFile = ChooseFile(fileEntries);
             
-            ReadParamFromGzip readFromGzip = new ReadParamFromGzip();
             //Loading data from chosen Gzip files
-            List<Parameter> source = readFromGzip.LoadData(sourceFile);
-            List<Parameter> target = readFromGzip.LoadData(targetFile);
+            var source = ReadParamFromGzip.LoadData(sourceFile);
+            var target = ReadParamFromGzip.LoadData(targetFile);
 
             //Extracting credentials
-            List<string> configurationCredentials = new List<string>();
-
-            int indexOfFirstNumericParameter = source.FindIndex(x => int.TryParse(x.Id, out _) == true);
-            for (int i = 0; i < indexOfFirstNumericParameter; i++)
-                configurationCredentials.Add(source[i].Id + " " + source[i].Value);
+            var configurationCredentials = ConfigurationCredentials(source);
 
             ParameterComparison parameterComparison = new ParameterComparison(source, target);
 
@@ -67,6 +62,17 @@ namespace CFGCompareCLI
             }
         }
 
+        private static List<string> ConfigurationCredentials(List<Parameter> source)
+        {
+            List<string> configurationCredentials = new List<string>();
+
+            int indexOfFirstNumericParameter = source.FindIndex(x => int.TryParse(x.Id, out _) == true);
+            for (int i = 0; i < indexOfFirstNumericParameter; i++)
+                configurationCredentials.Add(source[i].Id + " " + source[i].Value);
+
+            return configurationCredentials;
+        }
+
         private static void PrintConfigurationCredentials(List<String> credentials)
         {
             foreach(string i in credentials)
@@ -79,8 +85,7 @@ namespace CFGCompareCLI
             while(fileList.Length<1)
             {
                 Console.WriteLine("Enter directory of .cfg files");
-                //string configPath = Console.ReadLine();
-                string configPath = Environment.CurrentDirectory; //default I/O path (CFGCompareCLI\bin\Debug\net5.0)
+                string configPath = Console.ReadLine();
                 if (Directory.Exists(configPath))
                     fileList = Directory.GetFiles(configPath, "*.cfg");
                 else
@@ -103,10 +108,12 @@ namespace CFGCompareCLI
             string file = "";
             while (file == "")
             {
-                int.TryParse(Console.ReadLine(), out int choice);
-                if (choice < fileEntries.Length && choice >= 0)
+                var inputChoice = Console.ReadLine()?.Trim().ToLower();
+                if (int.TryParse(inputChoice, out _))
                 {
-                    file = fileEntries[choice];
+                    var choice = Convert.ToInt32(inputChoice);
+                    if (choice < fileEntries.Length && choice >= 0)
+                        file = fileEntries[choice];
                 }
                 else
                 {

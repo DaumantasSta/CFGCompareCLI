@@ -22,6 +22,10 @@ namespace CFGCompareCLI
         public ParameterState State { get; set; }
     }
 
+    /// <summary>
+    /// Compares both cfg file data
+    /// </summary>
+
     public class ParameterComparison
     {
         private List<ParameterComparisonEntry> _paramComparison = new List<ParameterComparisonEntry>();
@@ -52,7 +56,7 @@ namespace CFGCompareCLI
 
             for (int i = 0; i < target.Count; i++)
             {
-                index = _paramComparison.FindIndex(x => x.Id == target[i].Id); //If param comparison list dont have target id it returns -1
+                index = _paramComparison.FindIndex(x => x.Id == target[i].Id); //If param comparison list doesn't have target id it returns -1
                 if (index == -1)
                     _paramComparison.Add(new ParameterComparisonEntry { Id = target[i].Id, Value = target[i].Value, State = ParameterState.Added });
             }
@@ -94,7 +98,7 @@ namespace CFGCompareCLI
         public void PrintParametersWithIdFilter()
         {
             Console.WriteLine("Please type ID filter");
-            string input = Console.ReadLine();
+            string input = Console.ReadLine()?.Trim().ToLower();
             var output = _paramComparison.FindAll(x => x.Id.StartsWith(input));
 
             PrintParameters(output);
@@ -102,10 +106,13 @@ namespace CFGCompareCLI
 
         public void PrintParametersWithComparisonFilter()
         {
+            int intState = 4;
             Console.WriteLine("Please type one number of an comparison filter (0 - unchanged, 1 - modified, 2 - removed, 3 - added)");
-            string input = Console.ReadLine();
-            int.TryParse(input, out int intInput);
-            var output = _paramComparison.FindAll(x => x.State == (ParameterState)intInput);
+            string inputState = Console.ReadLine()?.Trim().ToLower();
+            if (int.TryParse(inputState, out _))
+                intState = Convert.ToInt32(inputState);
+
+            var output = _paramComparison.FindAll(x => x.State == (ParameterState)intState);
 
             PrintParameters(output);
         }

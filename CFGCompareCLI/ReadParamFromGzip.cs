@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace CFGCompareCLI
 {
-    public class ReadParamFromGzip
+    public static class ReadParamFromGzip
     {
-        public List<Parameter> LoadData(string fileDestination)
+        public static List<Parameter> LoadData(string fileDestination)
         {
             string input = "";
             using (FileStream reader = File.OpenRead(fileDestination))
