@@ -15,7 +15,7 @@ namespace CFGCompareCLI
             string[] fileEntries = ReadingCfgFilesInDir();
             Console.WriteLine("Choose source file");
             string sourceFile = ChooseFile(fileEntries);
-            Console.WriteLine("\n Choose target file");
+            Console.WriteLine("\nChoose target file");
             string targetFile = ChooseFile(fileEntries);
             
             //Loading data from chosen Gzip files
@@ -95,6 +95,7 @@ namespace CFGCompareCLI
                     Console.WriteLine("No *.cfg files found in selected dir \n");
             }
 
+            Console.WriteLine();
             return fileList;
         }
 

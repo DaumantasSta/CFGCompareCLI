@@ -41,7 +41,7 @@ namespace CFGCompareCLI
             {
                 index = target.FindIndex(x => x.Id == source[i].Id); //Find same id in target, if not returns -1
 
-                if (index > 0) //If same Id is found
+                if (index > -1) //If same Id is found
                 {
                     if (source[i].Value == target[index].Value)
                         _paramComparison.Add(new ParameterComparisonEntry { Id = source[i].Id, Value = source[i].Value, State = ParameterState.Unchanged });
