@@ -4,7 +4,9 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CFGCompareAPI.Models;
 using CFGCompareCLI;
+using CFGCompareCLI.Models;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 
@@ -16,23 +18,39 @@ namespace CFGCompareAPI.Services
         public void Post(IFormFile sourceFile, IFormFile targetFile)
         {
             var source = ReadParamFromGzip.LoadData(sourceFile.OpenReadStream());
-            var target = ReadParamFromGzip.LoadData(sourceFile.OpenReadStream());
+            var target = ReadParamFromGzip.LoadData(targetFile.OpenReadStream());
+            var sourceFileName = sourceFile.FileName;
+            var targetFileName = targetFile.FileName;
             ParameterComparison parameterComparison = new ParameterComparison(source, target);
-            SaveResults(parameterComparison);
+            SaveResults(parameterComparison, sourceFileName, targetFileName);
         }
 
-        public void SaveResults(ParameterComparison parameterComparison)
+        public void SaveResults(ParameterComparison parameterComparison, string sourceName, string targetName)
         {
+            var parameterComparisonResult = parameterComparison.ReturnParameters();
+            //Directories and file names
             string saveFolder = "Json_Temp";
             string jsonSavePath = saveFolder + "/" + "save" + ".json";
-            var resultJson = JsonConvert.SerializeObject(parameterComparison.ReturnParameters(), Formatting.Indented);
             if (!Directory.Exists(saveFolder))
                 Directory.CreateDirectory(saveFolder);
+            
+            ParameterComparisonJson parameterComparisonJson = new ParameterComparisonJson()
+            {
+                SourceName = sourceName,
+                TargetName = targetName,
+                Parameters = parameterComparison.ReturnParameters()
+            };
 
+            var resultJson = JsonConvert.SerializeObject(parameterComparisonJson, Formatting.Indented);
             File.WriteAllText(jsonSavePath, resultJson);
         }
 
         public string Get()
+        {
+            return ReadResults();
+        }
+
+        private static string ReadResults()
         {
             string saveFolder = "Json_Temp";
             string jsonSavePath = saveFolder + "/" + "save" + ".json";
@@ -41,14 +59,18 @@ namespace CFGCompareAPI.Services
             return jsonRead;
         }
 
-        public string GetById(string id)
+        public string GetResultsById(string id)
         {
-            return "";
+            var jsonRead = JsonConvert.DeserializeObject<ParameterComparisonJson>(ReadResults());
+            var output = jsonRead.Parameters.FindAll(x => x.Id.StartsWith(id));
+            return JsonConvert.SerializeObject(output, Formatting.Indented);
         }
 
-        public string GetByState(string state)
+        public string GetResultsByState(ParameterState state)
         {
-            return "";
+            var jsonRead = JsonConvert.DeserializeObject<ParameterComparisonJson>(ReadResults());
+            var output = jsonRead.Parameters.FindAll(x => x.State == state);
+            return JsonConvert.SerializeObject(output, Formatting.Indented); ;
         }
     }
 }

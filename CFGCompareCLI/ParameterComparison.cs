@@ -8,21 +8,6 @@ using System.Threading.Tasks;
 
 namespace CFGCompareCLI
 {
-    public enum ParameterState
-    {
-        Unchanged,
-        Modified,
-        Removed,
-        Added
-    }
-
-    public class ParameterComparisonEntry
-    {
-        public string Id { get; set; }
-        public string Value { get; set; }
-        public ParameterState State { get; set; }
-    }
-
     /// <summary>
     /// Compares both cfg file data
     /// </summary>
@@ -84,7 +69,7 @@ namespace CFGCompareCLI
                 foreach (var item in output)
                 {
                     Console.ForegroundColor = GetConsoleColor(item.State);
-                    Console.WriteLine("ID: " + item.Id + " Value: " + item.Value + " Comparasion: " + item.State);
+                    Console.WriteLine("ID: " + item.Id + " Value: " + item.Value + " Comparison: " + item.State);
                 }
             }
 

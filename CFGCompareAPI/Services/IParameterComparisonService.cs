@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CFGCompareCLI.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace CFGCompareAPI.Services
@@ -10,7 +11,7 @@ namespace CFGCompareAPI.Services
     {
         void Post(IFormFile sourceFile, IFormFile targetFile);
         string Get();
-        string GetById(string id);
-        string GetByState(string state);
+        string GetResultsById(string id);
+        string GetResultsByState(ParameterState state);
     }
 }

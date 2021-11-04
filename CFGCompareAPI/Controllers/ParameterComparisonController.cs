@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CFGCompareAPI.Services;
+using CFGCompareCLI;
+using CFGCompareCLI.Models;
 using Microsoft.AspNetCore.Http;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace CFGCompareAPI.Controllers
 {
@@ -20,8 +20,7 @@ namespace CFGCompareAPI.Controllers
             _parameterComparisonService = parameterComparisonService;
         }
 
-        // GET: api/<ParameterComparisonController>
-        [HttpGet]
+        [HttpGet] // GET: api/<ParameterComparisonController>
         //Get all values
         public ActionResult <string> Get()
         {
@@ -32,18 +31,17 @@ namespace CFGCompareAPI.Controllers
         //Get values by id
         public ActionResult<string> GetById(string id)
         {
-            return id;
+            return _parameterComparisonService.GetResultsById(id);
         }
 
         [HttpGet("byState/{state}")]
         //Get values by state
-        public ActionResult<string> GetByState(string state)
+        public ActionResult<string> GetByState(ParameterState state)
         {
-            return state;
+            return _parameterComparisonService.GetResultsByState(state);
         }
-
-        // POST api/<ParameterComparisonController>
-        [HttpPost]
+        
+        [HttpPost] // POST api/<ParameterComparisonController>
         public ActionResult Post(IFormFile source, IFormFile target)
         {
             //Checking if files are present
