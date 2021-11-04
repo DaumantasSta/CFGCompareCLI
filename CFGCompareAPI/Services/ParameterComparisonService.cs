@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using CFGCompareAPI.Models;
@@ -30,7 +31,7 @@ namespace CFGCompareAPI.Services
             var parameterComparisonResult = parameterComparison.ReturnParameters();
             //Directories and file names
             string saveFolder = "Json_Temp";
-            string jsonSavePath = saveFolder + "/" + "save" + ".json";
+            string jsonSavePath = saveFolder + "/" + "jsontemp" + ".json";
             if (!Directory.Exists(saveFolder))
                 Directory.CreateDirectory(saveFolder);
             
