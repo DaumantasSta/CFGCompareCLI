@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using CFGCompareAPI.Services;
 using Microsoft.AspNetCore.Session;
@@ -33,6 +34,11 @@ namespace CFGCompareAPI
             services.AddScoped<IParameterComparisonService, ParameterComparisonService>();
             services.AddDistributedMemoryCache();
             services.AddSession();
+            services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+            });
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CFGCompareAPI", Version = "v1" });
