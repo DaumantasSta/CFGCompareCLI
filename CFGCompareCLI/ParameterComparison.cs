@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CFGCompareCLI
@@ -65,6 +66,11 @@ namespace CFGCompareCLI
         public void PrintParameters()
         {
             PrintParameters(_paramComparison);
+        }
+
+        public List<ParameterComparisonEntry> ReturnParameters()
+        {
+            return _paramComparison;
         }
 
         private static void PrintParameters(List<ParameterComparisonEntry> output)
