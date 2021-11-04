@@ -9,6 +9,7 @@ using CFGCompareAPI.Models;
 using CFGCompareCLI;
 using CFGCompareCLI.Models;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
 namespace CFGCompareAPI.Services
@@ -16,24 +17,26 @@ namespace CFGCompareAPI.Services
     using Newtonsoft.Json;
     public class ParameterComparisonService:IParameterComparisonService
     {
-        public void Post(IFormFile sourceFile, IFormFile targetFile)
+        private string _saveFolder = "Json_Temp";
+
+        public void Post(IFormFile sourceFile, IFormFile targetFile, string sessionId)
         {
+
             var source = ReadParamFromGzip.LoadData(sourceFile.OpenReadStream());
             var target = ReadParamFromGzip.LoadData(targetFile.OpenReadStream());
             var sourceFileName = sourceFile.FileName;
             var targetFileName = targetFile.FileName;
             ParameterComparison parameterComparison = new ParameterComparison(source, target);
-            SaveResults(parameterComparison, sourceFileName, targetFileName);
+            SaveResults(parameterComparison, sourceFileName, targetFileName, sessionId);
         }
 
-        public void SaveResults(ParameterComparison parameterComparison, string sourceName, string targetName)
+        public void SaveResults(ParameterComparison parameterComparison, string sourceName, string targetName, string sessionId)
         {
             var parameterComparisonResult = parameterComparison.ReturnParameters();
             //Directories and file names
-            string saveFolder = "Json_Temp";
-            string jsonSavePath = saveFolder + "/" + "jsontemp" + ".json";
-            if (!Directory.Exists(saveFolder))
-                Directory.CreateDirectory(saveFolder);
+            string jsonSavePath = _saveFolder + "/" + sessionId + ".json";
+            if (!Directory.Exists(_saveFolder))
+                Directory.CreateDirectory(_saveFolder);
             
             ParameterComparisonJson parameterComparisonJson = new ParameterComparisonJson()
             {
@@ -46,32 +49,44 @@ namespace CFGCompareAPI.Services
             File.WriteAllText(jsonSavePath, resultJson);
         }
 
-        public string Get()
+        public string Get(string sessionId)
         {
-            return ReadResults();
+            return ReadResults(sessionId);
         }
 
-        private static string ReadResults()
+        private static string ReadResults(string sessionId)
         {
             string saveFolder = "Json_Temp";
-            string jsonSavePath = saveFolder + "/" + "save" + ".json";
-            string jsonRead = "";
-            jsonRead = File.ReadAllText(jsonSavePath);
+            string jsonSavePath = saveFolder + "/" + sessionId + ".json";
+            var jsonRead = File.ReadAllText(jsonSavePath);
             return jsonRead;
         }
 
-        public string GetResultsById(string id)
+        public string GetResultsById(string id, string sessionId)
         {
-            var jsonRead = JsonConvert.DeserializeObject<ParameterComparisonJson>(ReadResults());
+            var jsonRead = JsonConvert.DeserializeObject<ParameterComparisonJson>(ReadResults(sessionId));
             var output = jsonRead.Parameters.FindAll(x => x.Id.StartsWith(id));
             return JsonConvert.SerializeObject(output, Formatting.Indented);
         }
 
-        public string GetResultsByState(ParameterState state)
+        public string GetResultsByState(ParameterState state, string sessionId)
         {
-            var jsonRead = JsonConvert.DeserializeObject<ParameterComparisonJson>(ReadResults());
+            var jsonRead = JsonConvert.DeserializeObject<ParameterComparisonJson>(ReadResults(sessionId));
             var output = jsonRead.Parameters.FindAll(x => x.State == state);
             return JsonConvert.SerializeObject(output, Formatting.Indented); ;
+        }
+
+        public bool CheckFile(string sessionId)
+        {
+            string jsonSavePath = _saveFolder + "/" + sessionId + ".json";
+            if (File.Exists(jsonSavePath))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

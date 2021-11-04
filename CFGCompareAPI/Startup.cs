@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CFGCompareAPI.Services;
+using Microsoft.AspNetCore.Session;
 
 namespace CFGCompareAPI
 {
@@ -30,6 +31,8 @@ namespace CFGCompareAPI
 
             services.AddControllers();
             services.AddScoped<IParameterComparisonService, ParameterComparisonService>();
+            services.AddDistributedMemoryCache();
+            services.AddSession();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "CFGCompareAPI", Version = "v1" });
@@ -51,6 +54,8 @@ namespace CFGCompareAPI
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {
