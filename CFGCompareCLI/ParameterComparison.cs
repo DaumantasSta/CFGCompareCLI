@@ -18,10 +18,6 @@ namespace CFGCompareCLI
         
         public ParameterComparison(List<Parameter> source, List<Parameter> target)
         {
-            //Remove all alphabetic id's
-            source.RemoveAll(x => int.TryParse(x.Id, out _) == false);
-            target.RemoveAll(x => int.TryParse(x.Id, out _) == false);
-
             int index = 0;
             for (int i = 0; i < source.Count; i++)
             {

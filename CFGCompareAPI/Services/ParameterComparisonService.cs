@@ -42,7 +42,7 @@ namespace CFGCompareAPI.Services
             {
                 SourceName = sourceName,
                 TargetName = targetName,
-                Parameters = parameterComparison.ReturnParameters()
+                Parameters = parameterComparisonResult
             };
 
             var resultJson = JsonConvert.SerializeObject(parameterComparisonJson, Formatting.Indented);

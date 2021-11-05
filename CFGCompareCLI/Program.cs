@@ -24,6 +24,9 @@ namespace CFGCompareCLI
 
             //Extracting credentials
             var configurationCredentials = ConfigurationCredentials(source);
+            //Remove all alphabetic id's
+            source.RemoveAll(x => int.TryParse(x.Id, out _) == false);
+            target.RemoveAll(x => int.TryParse(x.Id, out _) == false);
 
             ParameterComparison parameterComparison = new ParameterComparison(source, target);
 
