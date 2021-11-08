@@ -5,9 +5,9 @@ using CFGCompareCLI.Models;
 
 namespace CFGCompareCLI
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             bool showMenu = true;
 
@@ -15,7 +15,8 @@ namespace CFGCompareCLI
             string[] fileEntries = ReadingCfgFilesInDir();
             Console.WriteLine("Choose source file");
             string sourceFile = ChooseFile(fileEntries);
-            Console.WriteLine("\nChoose target file");
+            Console.WriteLine();
+            Console.WriteLine("Choose target file");
             string targetFile = ChooseFile(fileEntries);
             
             //Loading data from chosen Gzip files
@@ -29,15 +30,16 @@ namespace CFGCompareCLI
             target.RemoveAll(x => int.TryParse(x.Id, out _) == false);
 
             ParameterComparison parameterComparison = new ParameterComparison(source, target);
+            var comparedParameters = parameterComparison.ReturnParameters();
 
-            while (showMenu == true)
+            while (showMenu)
             {
                 Console.Clear();
                 Console.ForegroundColor = ConsoleColor.Red;
                 PrintConfigurationCredentials(configurationCredentials);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Comparison summary:");
-                parameterComparison.PrintSummary();
+                PrintParameterComparison.PrintSummary(comparedParameters);
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Choose an option:");
                 Console.WriteLine("1) View parameter list");
@@ -50,13 +52,13 @@ namespace CFGCompareCLI
                 switch (selection)
                 {
                     case "1":
-                        parameterComparison.PrintParameters();
+                        PrintParameterComparison.PrintParameters(comparedParameters);
                         break;
                     case "2":
-                        parameterComparison.PrintParametersWithIdFilter();
+                        PrintParameterComparison.PrintParametersWithIdFilter(comparedParameters);
                         break;
                     case "3":
-                        parameterComparison.PrintParametersWithComparisonFilter();
+                        PrintParameterComparison.PrintParametersWithComparisonFilter(comparedParameters);
                         break;
                     case "4":
                         showMenu = false;
@@ -112,16 +114,19 @@ namespace CFGCompareCLI
             string file = "";
             while (file == "")
             {
-                var inputChoice = Console.ReadLine()?.Trim().ToLower();
+                var line = Console.ReadLine();
+                var inputChoice = line?.Trim().ToLower();
                 if (int.TryParse(inputChoice, out _))
                 {
                     var choice = Convert.ToInt32(inputChoice);
                     if (choice < fileEntries.Length && choice >= 0)
                         file = fileEntries[choice];
+                    else
+                        Console.WriteLine("Wrong choice, such choice does not exist");
                 }
                 else
                 {
-                    Console.WriteLine("Wrong choice");
+                    Console.WriteLine("Wrong choice, try typing numeric one.");
                 }
             }
 

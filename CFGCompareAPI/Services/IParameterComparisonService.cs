@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CFGCompareCLI.Models;
+﻿using CFGCompareCLI.Models;
 using Microsoft.AspNetCore.Http;
 
 namespace CFGCompareAPI.Services

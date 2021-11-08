@@ -1,11 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
 using CFGCompareAPI.Services;
-using CFGCompareCLI;
 using CFGCompareCLI.Models;
 using Microsoft.AspNetCore.Http;
 
@@ -28,8 +22,8 @@ namespace CFGCompareAPI.Controllers
             var sessionId = HttpContext.Session.Id;
             if (_parameterComparisonService.CheckFile(sessionId))
                 return _parameterComparisonService.Get(sessionId);
-            else
-                return BadRequest("No files uploaded");
+            
+            return BadRequest("No files uploaded");
         }
 
         [HttpGet("byId/{id}")]
@@ -39,8 +33,8 @@ namespace CFGCompareAPI.Controllers
             var sessionId = HttpContext.Session.Id;
             if (_parameterComparisonService.CheckFile(sessionId))
                 return _parameterComparisonService.GetResultsById(id, sessionId);
-            else
-                return BadRequest("No files uploaded");
+            
+            return BadRequest("No files uploaded");
         }
 
         [HttpGet("byState/{state}")]
@@ -50,8 +44,8 @@ namespace CFGCompareAPI.Controllers
             var sessionId = HttpContext.Session.Id;
             if (_parameterComparisonService.CheckFile(sessionId))
                 return _parameterComparisonService.GetResultsByState(state, sessionId);
-            else
-                return BadRequest("No files uploaded");
+            
+            return BadRequest("No files uploaded");
         }
         
         [HttpPost] // POST api/<ParameterComparisonController>
@@ -74,10 +68,8 @@ namespace CFGCompareAPI.Controllers
                 _parameterComparisonService.Post(source, target, sessionId);
                 return Ok("*.cfg files were uploaded successfully");
             }
-            else
-            {
+
                 return BadRequest("Both or either of files aren't configuration files (*.cfg)");
-            }
         }
     }
 }
